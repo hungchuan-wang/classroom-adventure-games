@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 能做什麼｜Claude + Antigravity</title>
+  <style>
+    :root {
+      --bg: #101413;
+      --panel: #171d1b;
+      --panel-2: #202723;
+      --text: #f7efe1;
+      --muted: #c9ba9f;
+      --line: rgba(247, 239, 225, 0.16);
+      --gold: #f0b75a;
+      --coral: #e87f64;
+      --mint: #75c7ad;
+      --teal: #24453f;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(240, 183, 90, 0.16), transparent 28rem),
+        linear-gradient(145deg, #0b0f0e 0%, var(--bg) 42%, #17241f 100%);
+      font-family: "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(16, 20, 19, 0.82);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #15120d;
+      background: linear-gradient(135deg, var(--gold), var(--coral));
+      font-weight: 900;
+      box-shadow: 0 10px 30px rgba(240, 183, 90, 0.28);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .nav-links a {
+      padding: 8px 10px;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    main {
+      overflow: hidden;
+    }
+
+    .hero {
+      min-height: calc(100vh - 64px);
+      position: relative;
+      display: grid;
+      align-items: end;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background-image: linear-gradient(90deg, rgba(10, 14, 13, 0.92) 0%, rgba(10, 14, 13, 0.68) 42%, rgba(10, 14, 13, 0.25) 72%), url("assets/teacher-ai-hero.png");
+      background-size: cover;
+      background-position: center;
+      filter: saturate(0.95);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 34%;
+      z-index: -1;
+      background: linear-gradient(180deg, transparent, var(--bg));
+    }
+
+    .hero-inner {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 90px 0 76px;
+    }
+
+    .kicker {
+      width: fit-content;
+      padding: 6px 12px;
+      border: 1px solid rgba(240, 183, 90, 0.38);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(240, 183, 90, 0.11);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 20px 0 18px;
+      font-size: clamp(2.6rem, 7vw, 6rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      color: #e8dbc5;
+      font-size: clamp(1.05rem, 2vw, 1.3rem);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-decoration: none;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .button.primary {
+      color: #17110b;
+      background: linear-gradient(135deg, var(--gold), var(--coral));
+      border-color: transparent;
+    }
+
+    .section {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 72px 0;
+    }
+
+    .section-heading {
+      max-width: 780px;
+      margin-bottom: 28px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .feature-card,
+    .tool-card,
+    .guide-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+      box-shadow: var(--shadow);
+    }
+
+    .intro-card {
+      padding: 26px;
+      background-color: rgba(23, 29, 27, 0.75);
+    }
+
+    .intro-card strong,
+    .accent {
+      color: var(--gold);
+    }
+
+    .capability-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .feature-card {
+      padding: 22px;
+      min-height: 248px;
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      color: #111614;
+      background: var(--gold);
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
+
+    .feature-card:nth-child(3n + 2) .icon {
+      background: var(--mint);
+    }
+
+    .feature-card:nth-child(3n) .icon {
+      background: var(--coral);
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 1.18rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .feature-card p,
+    .tool-card p,
+    .guide-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .example {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      color: #f0dfc4;
+      font-size: 0.96rem;
+    }
+
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .tool-card {
+      padding: 22px;
+      background-color: rgba(32, 39, 35, 0.75);
+    }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      color: #19130c;
+      background: var(--gold);
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .guide {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .guide-card {
+      padding: 24px;
+    }
+
+    .guide-card.do {
+      border-color: rgba(117, 199, 173, 0.36);
+    }
+
+    .guide-card.dont {
+      border-color: rgba(232, 127, 100, 0.38);
+    }
+
+    ul {
+      margin: 14px 0 0;
+      padding-left: 1.2rem;
+      color: #ebdcc2;
+    }
+
+    li + li {
+      margin-top: 10px;
+    }
+
+    .closing {
+      margin-top: 26px;
+      padding: 24px;
+      border: 1px solid rgba(240, 183, 90, 0.3);
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(240, 183, 90, 0.14), rgba(117, 199, 173, 0.08));
+    }
+
+    .closing p {
+      margin: 0;
+      color: #f2e4cd;
+      font-size: 1.08rem;
+    }
+
+    footer {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 34px 0 46px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 860px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 0;
+      }
+
+      .nav-links {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        min-height: 760px;
+      }
+
+      .hero::before {
+        background-image: linear-gradient(180deg, rgba(10, 14, 13, 0.82) 0%, rgba(10, 14, 13, 0.72) 48%, rgba(10, 14, 13, 0.95) 100%), url("assets/teacher-ai-hero.png");
+        background-position: 62% center;
+      }
+
+      .intro-grid,
+      .capability-grid,
+      .tools,
+      .guide {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .section {
+        padding: 54px 0;
+      }
+
+      .hero-inner {
+        padding: 76px 0 58px;
+      }
+
+      .nav-links a {
+        padding-left: 0;
+      }
+
+      .feature-card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav" aria-label="主要導覽">
+      <div class="brand">
+        <span class="brand-mark">AI</span>
+        <span>Claude + Antigravity</span>
+      </div>
+      <div class="nav-links">
+        <a href="#who">我是誰</a>
+        <a href="#can-do">能做什麼</a>
+        <a href="#plugins">插件推薦</a>
+        <a href="#talk">怎麼問</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-inner">
+        <div class="kicker">給老師的 AI 工作夥伴</div>
+        <h1 id="page-title">AI 能做什麼</h1>
+        <p class="hero-copy">
+          我是 Claude，結合 Antigravity 之後，可以從「聊天回答問題」變成「直接協助製作、修改、檢查與整理作品」的教學助理。
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#can-do">看我能幫哪些忙</a>
+          <a class="button" href="#talk">學會怎麼問我</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="who">
+      <div class="section-heading">
+        <h2>我是誰，結合 Antigravity 後能做什麼</h2>
+        <p class="lead">把我想成一位很會讀資料、寫草稿、整理脈絡，也能陪你一起修作品的 AI 助教。</p>
+      </div>
+      <div class="intro-grid">
+        <article class="feature-card intro-card">
+          <h3>Claude 是你的思考與文字夥伴</h3>
+          <p>
+            我能協助理解複雜資料、改寫內容、設計活動、規劃課程，也能用不同語氣和程度解釋同一件事。
+            對老師來說，我最適合處理「需要想清楚、寫清楚、整理清楚」的工作。
+          </p>
+        </article>
+        <article class="feature-card intro-card">
+          <h3>Antigravity 讓我能動手做</h3>
+          <p>
+            在 Antigravity 裡，我不只回答，還能建立資料夾、寫網頁、修改檔案、檢查錯誤、啟動本地預覽。
+            也就是把「我幫你想」延伸成 <strong>「我幫你做出可用的成品」</strong>。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="can-do">
+      <div class="section-heading">
+        <h2>我能做的事</h2>
+        <p class="lead">下面每一項都附上老師日常工作例子，方便直接帶回課堂或行政現場。</p>
+      </div>
+      <div class="capability-grid">
+        <article class="feature-card">
+          <div class="icon">1</div>
+          <h3>課程與單元規劃</h3>
+          <p>把課綱、教材重點和學生程度整理成可上課的流程。</p>
+          <div class="example">例：設計 45 分鐘「分數加減」課程，含引起動機、練習題和差異化任務。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">2</div>
+          <h3>教材製作</h3>
+          <p>產出講義、投影片大綱、學習單、閱讀文本與圖表說明。</p>
+          <div class="example">例：把一篇新聞改寫成國小高年級可讀的閱讀理解學習單。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">3</div>
+          <h3>出考卷與題目</h3>
+          <p>依難度、題型、範圍、能力指標產生題庫與解析。</p>
+          <div class="example">例：出 20 題國中自然選擇題，包含答案、詳解與易錯觀念提醒。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">4</div>
+          <h3>評量規準與回饋</h3>
+          <p>建立 rubrics、評語範本、作品回饋與補救建議。</p>
+          <div class="example">例：為「口頭報告」設計四級評分規準，並產生溫和具體的評語。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">5</div>
+          <h3>班級經營</h3>
+          <p>協助制定班規、活動流程、座位策略、衝突處理話術。</p>
+          <div class="example">例：設計開學第一週班級默契活動，讓學生共同訂定班級公約。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">6</div>
+          <h3>家長聯絡</h3>
+          <p>撰寫通知、說明、關懷訊息，讓語氣專業又不冰冷。</p>
+          <div class="example">例：寫一封給家長的訊息，說明孩子最近作業缺交，語氣堅定但支持。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">7</div>
+          <h3>差異化與特教支持</h3>
+          <p>把同一教材調整成不同閱讀量、難度、步驟和提示。</p>
+          <div class="example">例：為注意力較弱的學生把實驗步驟改成短句檢核表。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">8</div>
+          <h3>活動與專題設計</h3>
+          <p>規劃分組任務、探究問題、成果形式與時間安排。</p>
+          <div class="example">例：設計「校園節能」兩週專題，含訪查表、簡報要求與評分規準。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">9</div>
+          <h3>行政文件與會議整理</h3>
+          <p>協助寫計畫、整理會議紀錄、產出待辦清單與摘要。</p>
+          <div class="example">例：把研習紀錄整理成三段摘要、重點收穫與後續行動。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">10</div>
+          <h3>翻譯與語氣轉換</h3>
+          <p>把內容改成正式、親切、兒童版、雙語版或簡報版。</p>
+          <div class="example">例：將校外教學通知改成中英雙語，並保留家長需要知道的重點。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">11</div>
+          <h3>資料整理與分析</h3>
+          <p>整理表格、歸納問卷、分析成績分布與學習弱點。</p>
+          <div class="example">例：根據小考錯題統計，找出全班最需要補強的三個觀念。</div>
+        </article>
+        <article class="feature-card">
+          <div class="icon">12</div>
+          <h3>網頁與互動作品製作</h3>
+          <p>在 Antigravity 中建立 HTML、CSS、JavaScript 小工具與教學展示頁。</p>
+          <div class="example">例：做一個「英文單字配對」小遊戲，讓學生在平板或電腦上練習。</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="plugins">
+      <div class="section-heading">
+        <h2>老師最該裝的 Antigravity 插件 / 擴充功能</h2>
+        <p class="lead">若 Antigravity 使用相容的擴充功能市集，下面這些特別適合教學工作與課堂作品製作。</p>
+      </div>
+      <div class="tools">
+        <article class="tool-card">
+          <span class="tag">必裝</span>
+          <h3>Live Server</h3>
+          <p>做網頁或學生作品時，可以一鍵預覽，修改後自動更新。很適合上課示範 HTML、CSS、JavaScript。</p>
+        </article>
+        <article class="tool-card">
+          <span class="tag">整理控</span>
+          <h3>Prettier</h3>
+          <p>自動排版程式碼，讓學生作品比較整齊，也讓老師批改時更容易看出結構。</p>
+        </article>
+        <article class="tool-card">
+          <span class="tag">除錯</span>
+          <h3>ESLint</h3>
+          <p>即時提醒 JavaScript 常見錯誤，適合做互動網頁、小遊戲或班級資料工具。</p>
+        </article>
+        <article class="tool-card">
+          <span class="tag">版本紀錄</span>
+          <h3>GitLens</h3>
+          <p>看得出檔案何時改過、改了什麼。學生分組作品或老師長期備課檔案都很受用。</p>
+        </article>
+        <article class="tool-card">
+          <span class="tag">圖解</span>
+          <h3>Draw.io Integration</h3>
+          <p>直接畫流程圖、概念圖、班級活動流程與專題架構，適合教材製作和行政簡報。</p>
+        </article>
+        <article class="tool-card">
+          <span class="tag">資料</span>
+          <h3>Rainbow CSV</h3>
+          <p>整理成績、問卷或名單時，能讓 CSV 欄位用顏色區分，減少看錯欄的機會。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="talk">
+      <div class="section-heading">
+        <h2>怎麼跟我說話，才能得到最好的回答</h2>
+        <p class="lead">把我當成助教來交代任務：目標、對象、限制越清楚，結果越貼近你要的課堂情境。</p>
+      </div>
+      <div class="guide">
+        <article class="guide-card do">
+          <h3>Do：這樣問會更好</h3>
+          <ul>
+            <li>說明學生年級、程度、課程時間與科目。</li>
+            <li>告訴我要產出什麼格式，例如考卷、學習單、家長通知、投影片大綱。</li>
+            <li>提供限制條件，例如字數、題數、難度、語氣、是否需要答案。</li>
+            <li>請我先給草稿，再請我依你的想法修改第二版。</li>
+            <li>貼上你已有的內容，請我整理、改寫或檢查。</li>
+          </ul>
+        </article>
+        <article class="guide-card dont">
+          <h3>Don't：這樣問容易太模糊</h3>
+          <ul>
+            <li>不要只說「幫我做教材」，卻沒有說年級、主題和上課時間。</li>
+            <li>不要一次要求太多互相矛盾的目標，例如又要很短又要非常完整。</li>
+            <li>不要直接採用重要內容；考卷、通知、評語都建議老師再確認。</li>
+            <li>不要把學生個資或敏感家庭資訊完整貼上來，先匿名化會更安全。</li>
+          </ul>
+        </article>
+      </div>
+      <div class="closing">
+        <p>
+          好的問法範例：<span class="accent">「請幫我設計一張國小五年級自然課學習單，主題是水溶液，時間 40 分鐘，包含 5 題選擇、2 題開放題、答案與教師提醒。」</span>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    本頁由 Claude + Antigravity 協作完成，可作為老師認識 AI 工作流程的第一個課堂作品。
+  </footer>
+</body>
+</html>

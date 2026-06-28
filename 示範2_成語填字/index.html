@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>示範2_成語填字</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #f5ecd7;
+      --paper-deep: #ead9b8;
+      --ink: #24170d;
+      --muted: #765b3c;
+      --red: #b83227;
+      --red-deep: #7f1f19;
+      --gold: #d6a84d;
+      --gold-light: #f6d586;
+      --wood: #e7c98b;
+      --wood-dark: #a97936;
+      --line: rgba(125, 78, 35, 0.28);
+      --shadow: 0 22px 60px rgba(74, 43, 16, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(214, 168, 77, 0.18), transparent 24rem),
+        radial-gradient(circle at 84% 18%, rgba(184, 50, 39, 0.12), transparent 22rem),
+        linear-gradient(45deg, rgba(122, 83, 42, 0.045) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(122, 83, 42, 0.04) 25%, transparent 25%),
+        linear-gradient(180deg, var(--paper), #fff8e9 44%, var(--paper-deep));
+      background-size: auto, auto, 24px 24px, 24px 24px, auto;
+      font-family: "Noto Serif TC", "PMingLiU", serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(94, 58, 28, 0.035) 1px, transparent 1px),
+        linear-gradient(rgba(94, 58, 28, 0.032) 1px, transparent 1px);
+      background-size: 42px 42px;
+      opacity: 0.8;
+    }
+
+    .page {
+      position: relative;
+      width: min(1080px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 26px 0 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 249, 232, 0.74);
+      box-shadow: var(--shadow), inset 0 0 24px rgba(255, 255, 255, 0.46);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--red-deep);
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stat {
+      min-width: 106px;
+      padding: 10px 13px;
+      border: 1px solid rgba(184, 50, 39, 0.26);
+      border-radius: 14px;
+      text-align: right;
+      background: rgba(255, 253, 244, 0.78);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .stat-value {
+      color: var(--red-deep);
+      font-size: 1.45rem;
+      font-weight: 900;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .game-panel {
+      padding: clamp(18px, 4vw, 34px);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        linear-gradient(90deg, rgba(184, 50, 39, 0.08), transparent 18%, transparent 82%, rgba(184, 50, 39, 0.08)),
+        rgba(255, 250, 236, 0.82);
+      box-shadow: var(--shadow), inset 0 0 34px rgba(255, 255, 255, 0.52);
+    }
+
+    .idiom-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: clamp(10px, 2vw, 16px);
+      min-height: 126px;
+      margin-bottom: 20px;
+      padding: 20px 10px;
+      border-top: 2px solid rgba(184, 50, 39, 0.22);
+      border-bottom: 2px solid rgba(184, 50, 39, 0.22);
+    }
+
+    .char,
+    .blank {
+      width: clamp(58px, 11vw, 94px);
+      height: clamp(58px, 11vw, 94px);
+      display: grid;
+      place-items: center;
+      font-size: clamp(2.25rem, 8vw, 4.3rem);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .char {
+      color: var(--ink);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .blank {
+      position: relative;
+      border: 3px solid var(--red);
+      color: rgba(184, 50, 39, 0.42);
+      background:
+        linear-gradient(45deg, transparent calc(50% - 1px), rgba(184, 50, 39, 0.32) calc(50% - 1px), rgba(184, 50, 39, 0.32) calc(50% + 1px), transparent calc(50% + 1px)),
+        linear-gradient(-45deg, transparent calc(50% - 1px), rgba(184, 50, 39, 0.26) calc(50% - 1px), rgba(184, 50, 39, 0.26) calc(50% + 1px), transparent calc(50% + 1px)),
+        linear-gradient(90deg, transparent calc(50% - 1px), rgba(184, 50, 39, 0.22) calc(50% - 1px), rgba(184, 50, 39, 0.22) calc(50% + 1px), transparent calc(50% + 1px)),
+        linear-gradient(0deg, transparent calc(50% - 1px), rgba(184, 50, 39, 0.22) calc(50% - 1px), rgba(184, 50, 39, 0.22) calc(50% + 1px), transparent calc(50% + 1px)),
+        rgba(255, 251, 239, 0.72);
+      border-radius: 10px;
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .blank.drag-over {
+      transform: scale(1.04);
+      box-shadow: 0 0 0 5px rgba(184, 50, 39, 0.12), inset 0 0 18px rgba(184, 50, 39, 0.12);
+    }
+
+    .blank.locked {
+      color: var(--red);
+      background:
+        radial-gradient(circle at center, rgba(184, 50, 39, 0.1), transparent 62%),
+        rgba(255, 250, 238, 0.84);
+      box-shadow: inset 0 0 20px rgba(184, 50, 39, 0.18);
+      animation: stampIn 0.25s ease-out;
+    }
+
+    @keyframes stampIn {
+      from {
+        transform: scale(1.28) rotate(-3deg);
+        opacity: 0.45;
+      }
+      to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    .feedback {
+      min-height: 104px;
+      display: none;
+      margin: 0 auto 20px;
+      padding: 16px 18px;
+      border: 1px solid rgba(47, 125, 74, 0.28);
+      border-radius: 16px;
+      color: #1f4f31;
+      background: rgba(238, 247, 225, 0.78);
+      max-width: 780px;
+      text-align: center;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback h2 {
+      margin: 0 0 6px;
+      color: #287345;
+      font-size: 1.55rem;
+      letter-spacing: 0;
+    }
+
+    .feedback p {
+      margin: 0 0 14px;
+      color: #31523a;
+      font-size: 1.02rem;
+    }
+
+    .bank-title {
+      margin: 0 0 12px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .tile-bank {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(54px, 1fr));
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid rgba(125, 78, 35, 0.2);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.28);
+      min-height: 198px;
+      touch-action: none;
+    }
+
+    .char-card {
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(125, 78, 35, 0.34);
+      border-radius: 12px;
+      color: #16100a;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.34), transparent 45%),
+        linear-gradient(90deg, rgba(130, 82, 32, 0.1), transparent 26%, rgba(130, 82, 32, 0.08) 72%, transparent),
+        var(--wood);
+      box-shadow: 0 10px 20px rgba(93, 55, 18, 0.13), inset 0 0 12px rgba(255, 248, 216, 0.34);
+      font-size: 2rem;
+      font-weight: 900;
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+    }
+
+    .char-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(93, 55, 18, 0.18), inset 0 0 12px rgba(255, 248, 216, 0.42);
+    }
+
+    .char-card.dragging {
+      position: fixed;
+      z-index: 40;
+      width: var(--drag-width);
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(1.08);
+      opacity: 0.96;
+      box-shadow: 0 20px 44px rgba(90, 45, 18, 0.24);
+    }
+
+    .char-card.placeholder {
+      opacity: 0.2;
+      box-shadow: none;
+    }
+
+    .char-card.correct {
+      color: #53230f;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      border-color: rgba(166, 109, 28, 0.58);
+      cursor: default;
+    }
+
+    .char-card.wrong {
+      animation: wrongFlash 0.2s ease;
+    }
+
+    @keyframes wrongFlash {
+      0%, 100% {
+        box-shadow: 0 10px 20px rgba(93, 55, 18, 0.13);
+      }
+      50% {
+        transform: translateY(-2px) scale(1.04);
+        box-shadow: 0 0 26px rgba(184, 50, 39, 0.72);
+        border-color: rgba(184, 50, 39, 0.82);
+      }
+    }
+
+    button {
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1px solid rgba(127, 31, 25, 0.28);
+      border-radius: 12px;
+      color: #fff8e8;
+      background: linear-gradient(135deg, var(--red), var(--red-deep));
+      box-shadow: 0 12px 26px rgba(127, 31, 25, 0.18);
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .map-link {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      z-index: 40;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 13px;
+      border: 1px solid rgba(127, 31, 25, 0.28);
+      border-radius: 999px;
+      color: #fff8e8;
+      background: linear-gradient(135deg, var(--red), var(--red-deep));
+      text-decoration: none;
+      font-weight: 900;
+      box-shadow: 0 12px 26px rgba(127, 31, 25, 0.18);
+    }
+
+    .result-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(52, 26, 11, 0.46);
+      backdrop-filter: blur(8px);
+    }
+
+    .result-backdrop.show {
+      display: grid;
+    }
+
+    .result-card {
+      width: min(92vw, 430px);
+      padding: 30px;
+      border: 1px solid rgba(184, 50, 39, 0.34);
+      border-radius: 20px;
+      text-align: center;
+      background: linear-gradient(180deg, #fff8e8, #f1dfbd);
+      box-shadow: 0 24px 70px rgba(74, 43, 16, 0.28);
+    }
+
+    .result-card h2 {
+      margin: 0 0 10px;
+      color: var(--red-deep);
+      font-size: 2rem;
+      letter-spacing: 0;
+    }
+
+    .result-card p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .result-card strong {
+      color: var(--red-deep);
+      font-size: 1.4rem;
+    }
+
+    @media (max-width: 760px) {
+      header {
+        flex-direction: column;
+      }
+
+      .stats {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .stat {
+        flex: 1;
+      }
+
+      .tile-bank {
+        display: flex;
+        overflow-x: auto;
+        min-height: 92px;
+        scroll-snap-type: x proximity;
+      }
+
+      .char-card {
+        min-width: 58px;
+        scroll-snap-align: start;
+      }
+    }
+
+    @media (max-width: 470px) {
+      .page {
+        width: min(100% - 18px, 430px);
+        padding-top: 16px;
+      }
+
+      header,
+      .game-panel {
+        border-radius: 16px;
+      }
+
+      .idiom-row {
+        gap: 8px;
+      }
+
+      .char,
+      .blank {
+        width: 56px;
+        height: 56px;
+        font-size: 2.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="map-link" href="../大冒險地圖/index.html">← 回到大地圖</a>
+  <main class="page">
+    <header>
+      <div>
+        <h1>成語填字</h1>
+        <p class="subtitle">把下方字卡拖到紅色米字格，補完成語。</p>
+      </div>
+      <div class="stats" aria-label="遊戲進度">
+        <section class="stat">
+          <div class="stat-label">題目</div>
+          <div class="stat-value"><span id="questionNow">1</span>/5</div>
+        </section>
+        <section class="stat">
+          <div class="stat-label">答對</div>
+          <div class="stat-value" id="score">0</div>
+        </section>
+      </div>
+    </header>
+
+    <section class="game-panel" aria-label="成語填字遊戲">
+      <div class="idiom-row" id="idiomRow"></div>
+
+      <section class="feedback" id="feedback">
+        <h2>✓ 答對！</h2>
+        <p id="meaning"></p>
+        <button id="nextButton" type="button">下一題</button>
+      </section>
+
+      <p class="bank-title">字卡區</p>
+      <div class="tile-bank" id="tileBank"></div>
+    </section>
+  </main>
+
+  <section class="result-backdrop" id="resultBackdrop" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+    <div class="result-card">
+      <h2 id="resultTitle">挑戰完成</h2>
+      <p>你的總成績：<strong id="finalScore">0</strong> / 5</p>
+      <button id="restartButton" type="button">重新挑戰</button>
+    </div>
+  </section>
+
+  <script>
+    const QUESTIONS = [
+      { 成語: "一鳴驚人", 缺字: [1, 2], 答案: ["鳴", "驚"], 意思: "比喻平時默默無聞，突然有驚人表現。" },
+      { 成語: "風花雪月", 缺字: [1, 3], 答案: ["花", "月"], 意思: "原指四時景色，後比喻浮華空洞的詩文。" },
+      { 成語: "三番五次", 缺字: [1, 3], 答案: ["番", "次"], 意思: "形容次數很多。" },
+      { 成語: "一字千金", 缺字: [1, 3], 答案: ["字", "金"], 意思: "形容文字價值極高。" },
+      { 成語: "畫龍點睛", 缺字: [1, 3], 答案: ["龍", "睛"], 意思: "比喻在關鍵處點明要旨，使內容更加生動有力。" },
+      { 成語: "守株待兔", 缺字: [1, 3], 答案: ["株", "兔"], 意思: "比喻不知變通，只想僥倖獲得成功。" },
+      { 成語: "亡羊補牢", 缺字: [1, 3], 答案: ["羊", "牢"], 意思: "比喻出了問題後及時補救，仍可避免更大損失。" },
+      { 成語: "胸有成竹", 缺字: [1, 3], 答案: ["有", "竹"], 意思: "比喻做事之前已有完整的計畫或把握。" },
+      { 成語: "滄海一粟", 缺字: [1, 3], 答案: ["海", "粟"], 意思: "比喻非常渺小，微不足道。" },
+      { 成語: "雪中送炭", 缺字: [1, 3], 答案: ["中", "炭"], 意思: "比喻在別人急需時給予幫助。" },
+      { 成語: "杯弓蛇影", 缺字: [1, 2], 答案: ["弓", "蛇"], 意思: "比喻因疑神疑鬼而自相驚擾。" },
+      { 成語: "刻舟求劍", 缺字: [1, 3], 答案: ["舟", "劍"], 意思: "比喻拘泥成法，不懂得隨情況改變。" }
+    ];
+
+    const DISTRACTORS = "天地日月山水風雲花鳥魚蟲春秋真假忠孝仁義禮智信東西南北上下古今書詩琴棋心火木石玉門馬鹿虎";
+
+    const idiomRow = document.getElementById("idiomRow");
+    const tileBank = document.getElementById("tileBank");
+    const feedback = document.getElementById("feedback");
+    const meaningEl = document.getElementById("meaning");
+    const nextButton = document.getElementById("nextButton");
+    const questionNowEl = document.getElementById("questionNow");
+    const scoreEl = document.getElementById("score");
+    const resultBackdrop = document.getElementById("resultBackdrop");
+    const finalScoreEl = document.getElementById("finalScore");
+    const restartButton = document.getElementById("restartButton");
+
+    let gameQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let filledCount = 0;
+    let audioCtx;
+    let dragState = null;
+
+    function shuffle(list) {
+      return [...list].sort(() => Math.random() - 0.5);
+    }
+
+    function startGame() {
+      gameQuestions = shuffle(QUESTIONS).slice(0, 5);
+      currentIndex = 0;
+      score = 0;
+      scoreEl.textContent = score;
+      resultBackdrop.classList.remove("show");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const question = gameQuestions[currentIndex];
+      filledCount = 0;
+      idiomRow.innerHTML = "";
+      tileBank.innerHTML = "";
+      feedback.classList.remove("show");
+      questionNowEl.textContent = currentIndex + 1;
+
+      [...question.成語].forEach((char, index) => {
+        if (question.缺字.includes(index)) {
+          const answerIndex = question.缺字.indexOf(index);
+          const blank = document.createElement("div");
+          blank.className = "blank";
+          blank.textContent = "□";
+          blank.dataset.answer = question.答案[answerIndex];
+          blank.dataset.filled = "false";
+          idiomRow.appendChild(blank);
+        } else {
+          const charBox = document.createElement("div");
+          charBox.className = "char";
+          charBox.textContent = char;
+          idiomRow.appendChild(charBox);
+        }
+      });
+
+      buildTiles(question);
+    }
+
+    function buildTiles(question) {
+      const answers = [...question.答案];
+      const used = new Set(answers);
+      const distractors = [];
+
+      for (const char of shuffle([...DISTRACTORS])) {
+        if (!used.has(char)) {
+          distractors.push(char);
+          used.add(char);
+        }
+        if (distractors.length === 13) {
+          break;
+        }
+      }
+
+      shuffle([...answers, ...distractors]).forEach((char, index) => {
+        const card = document.createElement("button");
+        card.className = "char-card";
+        card.type = "button";
+        card.textContent = char;
+        card.dataset.char = char;
+        card.dataset.tileId = `tile-${currentIndex}-${index}`;
+        tileBank.appendChild(card);
+        bindPointerDrag(card);
+      });
+    }
+
+    function bindPointerDrag(card) {
+      card.addEventListener("pointerdown", event => {
+        if (card.classList.contains("correct")) {
+          return;
+        }
+
+        event.preventDefault();
+        getAudioContext();
+        const rect = card.getBoundingClientRect();
+        const placeholder = card.cloneNode(true);
+        placeholder.classList.add("placeholder");
+        placeholder.textContent = "";
+        card.parentNode.insertBefore(placeholder, card);
+
+        dragState = {
+          card,
+          placeholder,
+          originParent: placeholder.parentNode,
+          width: rect.width,
+          height: rect.height
+        };
+
+        card.setPointerCapture(event.pointerId);
+        card.style.setProperty("--drag-width", `${rect.width}px`);
+        card.classList.add("dragging");
+        document.body.appendChild(card);
+        moveDraggedCard(event.clientX, event.clientY);
+      });
+
+      card.addEventListener("pointermove", event => {
+        if (!dragState || dragState.card !== card) {
+          return;
+        }
+
+        moveDraggedCard(event.clientX, event.clientY);
+        highlightBlank(event.clientX, event.clientY);
+      });
+
+      card.addEventListener("pointerup", event => {
+        if (!dragState || dragState.card !== card) {
+          return;
+        }
+
+        finishDrag(event.clientX, event.clientY);
+      });
+
+      card.addEventListener("pointercancel", () => {
+        if (dragState && dragState.card === card) {
+          returnCard();
+        }
+      });
+    }
+
+    function moveDraggedCard(x, y) {
+      dragState.card.style.left = `${x}px`;
+      dragState.card.style.top = `${y}px`;
+    }
+
+    function highlightBlank(x, y) {
+      document.querySelectorAll(".blank").forEach(blank => blank.classList.remove("drag-over"));
+      const blank = getBlankAtPoint(x, y);
+      if (blank && blank.dataset.filled === "false") {
+        blank.classList.add("drag-over");
+      }
+    }
+
+    function finishDrag(x, y) {
+      const blank = getBlankAtPoint(x, y);
+      document.querySelectorAll(".blank").forEach(item => item.classList.remove("drag-over"));
+
+      if (blank && blank.dataset.filled === "false" && dragState.card.dataset.char === blank.dataset.answer) {
+        lockAnswer(blank);
+      } else {
+        wrongAnswer();
+      }
+    }
+
+    function getBlankAtPoint(x, y) {
+      const currentCard = dragState?.card;
+      if (currentCard) {
+        currentCard.style.visibility = "hidden";
+      }
+      const element = document.elementFromPoint(x, y);
+      if (currentCard) {
+        currentCard.style.visibility = "";
+      }
+      return element?.closest(".blank");
+    }
+
+    function lockAnswer(blank) {
+      const { card, placeholder } = dragState;
+      card.classList.remove("dragging");
+      card.classList.add("correct");
+      card.style.left = "";
+      card.style.top = "";
+      card.style.removeProperty("--drag-width");
+      card.style.visibility = "";
+      card.style.pointerEvents = "none";
+      placeholder.remove();
+
+      blank.textContent = card.dataset.char;
+      blank.classList.add("locked");
+      blank.dataset.filled = "true";
+      playBell();
+      filledCount += 1;
+      dragState = null;
+
+      if (filledCount === 2) {
+        showCorrectFeedback();
+      }
+    }
+
+    function wrongAnswer() {
+      const { card } = dragState;
+      playWrong();
+      returnCard();
+      card.classList.remove("wrong");
+      void card.offsetWidth;
+      card.classList.add("wrong");
+      setTimeout(() => card.classList.remove("wrong"), 200);
+    }
+
+    function returnCard() {
+      const { card, placeholder } = dragState;
+      card.classList.remove("dragging");
+      card.style.left = "";
+      card.style.top = "";
+      card.style.visibility = "";
+      card.style.removeProperty("--drag-width");
+      placeholder.parentNode.insertBefore(card, placeholder);
+      placeholder.remove();
+      dragState = null;
+    }
+
+    function showCorrectFeedback() {
+      const question = gameQuestions[currentIndex];
+      score += 1;
+      scoreEl.textContent = score;
+      meaningEl.textContent = question.意思;
+      feedback.classList.add("show");
+    }
+
+    function nextQuestion() {
+      currentIndex += 1;
+      if (currentIndex >= 5) {
+        localStorage.setItem("cert_idiom", "1");
+        finalScoreEl.textContent = score;
+        resultBackdrop.classList.add("show");
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function tone(frequency, duration, type, gainValue, delay = 0) {
+      const audio = getAudioContext();
+      const oscillator = audio.createOscillator();
+      const gain = audio.createGain();
+      const start = audio.currentTime + delay;
+      oscillator.type = type;
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      oscillator.connect(gain);
+      gain.connect(audio.destination);
+      oscillator.start(start);
+      oscillator.stop(start + duration + 0.02);
+    }
+
+    function playBell() {
+      tone(740, 0.09, "sine", 0.05);
+      tone(1046, 0.14, "triangle", 0.035, 0.055);
+    }
+
+    function playWrong() {
+      tone(150, 0.08, "sawtooth", 0.035);
+    }
+
+    nextButton.addEventListener("click", nextQuestion);
+    restartButton.addEventListener("click", startGame);
+    document.addEventListener("pointerdown", () => getAudioContext(), { once: true });
+
+    startGame();
+  </script>
+</body>
+</html>

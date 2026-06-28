@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>示範1_朝代配對</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #160d08;
+      --bg: #100906;
+      --panel: rgba(36, 20, 12, 0.86);
+      --panel-2: #20110b;
+      --gold: #d7ad55;
+      --gold-light: #ffe0a1;
+      --paper: #efe0bb;
+      --paper-2: #dcc795;
+      --red: #a83224;
+      --red-light: #f05f4d;
+      --green: #2f8a54;
+      --green-light: #79d398;
+      --text: #fff3d6;
+      --muted: #d4be8c;
+      --line: rgba(215, 173, 85, 0.38);
+      --shadow: 0 26px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100%;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 8%, rgba(215, 173, 85, 0.18), transparent 24rem),
+        radial-gradient(circle at 82% 18%, rgba(168, 50, 36, 0.22), transparent 22rem),
+        linear-gradient(rgba(215, 173, 85, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(215, 173, 85, 0.028) 1px, transparent 1px),
+        linear-gradient(145deg, #090503 0%, var(--bg) 58%, #21110a 100%);
+      background-size: auto, auto, 38px 38px, 38px 38px, auto;
+      font-family: "Noto Serif TC", "PMingLiU", serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent 0 48%, rgba(215, 173, 85, 0.06) 50%, transparent 52%),
+        radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.36) 100%);
+      opacity: 0.75;
+    }
+
+    .page {
+      position: relative;
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(45, 25, 14, 0.92), rgba(23, 11, 7, 0.92));
+      box-shadow: var(--shadow), inset 0 0 24px rgba(215, 173, 85, 0.08);
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--gold-light);
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+      text-shadow: 0 0 18px rgba(215, 173, 85, 0.42);
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stat {
+      min-width: 112px;
+      padding: 10px 14px;
+      border: 1px solid rgba(215, 173, 85, 0.42);
+      border-radius: 12px;
+      text-align: right;
+      background: rgba(16, 9, 6, 0.72);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .stat-value {
+      color: var(--gold-light);
+      font-size: 1.45rem;
+      font-weight: 900;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .game {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .dynasty-board,
+    .event-bank {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      box-shadow: var(--shadow), inset 0 0 26px rgba(215, 173, 85, 0.06);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--gold-light);
+      font-size: 1.12rem;
+      font-weight: 900;
+    }
+
+    .section-title small {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .dynasty-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      padding: 16px;
+    }
+
+    .dynasty-card {
+      min-height: 218px;
+      display: flex;
+      flex-direction: column;
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      overflow: hidden;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.38), transparent 42%),
+        linear-gradient(180deg, var(--paper), var(--paper-2));
+      box-shadow: inset 0 0 20px rgba(116, 67, 22, 0.16), 0 12px 28px rgba(0, 0, 0, 0.24);
+    }
+
+    .dynasty-name {
+      padding: 14px 12px 10px;
+      border-bottom: 1px solid rgba(117, 74, 25, 0.28);
+      color: #5c2618;
+      font-size: clamp(1.45rem, 3vw, 2.15rem);
+      font-weight: 900;
+      text-align: center;
+      background: rgba(255, 240, 197, 0.48);
+    }
+
+    .drop-zone {
+      flex: 1;
+      min-height: 130px;
+      display: flex;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      gap: 8px;
+      padding: 12px;
+      transition: background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .drop-zone::before {
+      content: attr(data-placeholder);
+      width: 100%;
+      color: rgba(92, 38, 24, 0.48);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .drop-zone.has-card::before {
+      display: none;
+    }
+
+    .drop-zone.drag-over {
+      background: rgba(215, 173, 85, 0.28);
+      box-shadow: inset 0 0 20px rgba(215, 173, 85, 0.45);
+    }
+
+    .event-bank {
+      position: sticky;
+      top: 16px;
+      overflow: hidden;
+    }
+
+    .event-list {
+      max-height: min(68vh, 720px);
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      overflow: auto;
+    }
+
+    .event-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 10px 12px;
+      border: 1px solid rgba(240, 95, 77, 0.78);
+      border-radius: 12px;
+      color: var(--text);
+      background:
+        linear-gradient(135deg, rgba(168, 50, 36, 0.28), transparent 45%),
+        #150c09;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 0 14px rgba(240, 95, 77, 0.08);
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .event-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--gold-light);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.32), 0 0 18px rgba(215, 173, 85, 0.18);
+    }
+
+    .event-card:active {
+      cursor: grabbing;
+    }
+
+    .event-card.dragging {
+      opacity: 0.45;
+    }
+
+    .event-card.correct {
+      min-height: 40px;
+      width: fit-content;
+      max-width: 100%;
+      padding: 7px 9px;
+      border-color: rgba(121, 211, 152, 0.92);
+      color: #eaffef;
+      background: linear-gradient(135deg, rgba(47, 138, 84, 0.92), rgba(17, 78, 46, 0.96));
+      box-shadow: 0 0 12px rgba(121, 211, 152, 0.35);
+      cursor: default;
+      font-size: 0.86rem;
+    }
+
+    .event-card.correct .event-icon {
+      width: 24px;
+      height: 24px;
+      font-size: 1rem;
+    }
+
+    .event-card.correct:hover {
+      transform: none;
+      border-color: rgba(121, 211, 152, 0.92);
+    }
+
+    .event-card.wrong {
+      animation: wrongFlash 0.3s ease;
+    }
+
+    @keyframes wrongFlash {
+      0%, 100% {
+        transform: translateX(0);
+        box-shadow: 0 0 0 rgba(240, 95, 77, 0);
+      }
+      25% {
+        transform: translateX(-8px);
+        box-shadow: 0 0 28px rgba(240, 95, 77, 0.85);
+      }
+      50% {
+        transform: translateX(8px);
+        box-shadow: 0 0 28px rgba(240, 95, 77, 0.85);
+      }
+      75% {
+        transform: translateX(-5px);
+      }
+    }
+
+    .event-icon {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: rgba(215, 173, 85, 0.16);
+      font-size: 1.25rem;
+    }
+
+    .event-text {
+      line-height: 1.28;
+      font-weight: 700;
+    }
+
+    .pass-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.68);
+      backdrop-filter: blur(8px);
+    }
+
+    .pass-backdrop.show {
+      display: grid;
+      animation: goldFlash 0.7s ease-out;
+    }
+
+    @keyframes goldFlash {
+      0% {
+        background: rgba(255, 224, 161, 0.75);
+      }
+      100% {
+        background: rgba(0, 0, 0, 0.68);
+      }
+    }
+
+    .pass-card {
+      width: min(92vw, 430px);
+      padding: 30px;
+      border: 2px solid var(--gold);
+      border-radius: 16px;
+      text-align: center;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255, 224, 161, 0.24), transparent 18rem),
+        linear-gradient(180deg, #321b0f, #140a06);
+      box-shadow: 0 0 46px rgba(215, 173, 85, 0.5), var(--shadow);
+    }
+
+    .pass-card h2 {
+      margin: 0 0 10px;
+      color: var(--gold-light);
+      font-size: 2.1rem;
+      letter-spacing: 0;
+      text-shadow: 0 0 18px rgba(255, 224, 161, 0.46);
+    }
+
+    .pass-card p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .pass-card strong {
+      color: var(--gold-light);
+      font-size: 1.35rem;
+    }
+
+    button {
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1px solid rgba(255, 224, 161, 0.7);
+      border-radius: 10px;
+      color: #2b1207;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(215, 173, 85, 0.22);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .map-link {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      z-index: 40;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 13px;
+      border: 1px solid rgba(255, 224, 161, 0.56);
+      border-radius: 999px;
+      color: var(--gold-light);
+      background: rgba(16, 9, 6, 0.82);
+      text-decoration: none;
+      font-weight: 900;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26);
+      backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 880px) {
+      header {
+        flex-direction: column;
+      }
+
+      .stats {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .stat {
+        flex: 1;
+      }
+
+      .game {
+        grid-template-columns: 1fr;
+      }
+
+      .event-bank {
+        position: static;
+      }
+
+      .event-list {
+        max-height: none;
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 18px;
+        scroll-snap-type: x proximity;
+      }
+
+      .event-card:not(.correct) {
+        min-width: 210px;
+        scroll-snap-align: start;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .page {
+        width: min(100% - 20px, 520px);
+        padding-top: 16px;
+      }
+
+      .dynasty-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dynasty-card {
+        min-height: 188px;
+      }
+
+      .drop-zone {
+        min-height: 110px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="map-link" href="../大冒險地圖/index.html">← 回到大地圖</a>
+  <main class="page">
+    <header>
+      <div>
+        <h1>朝代配對</h1>
+        <p class="subtitle">把右邊的歷史事件拖到左邊正確的朝代格子中。</p>
+      </div>
+      <div class="stats" aria-label="遊戲統計">
+        <section class="stat">
+          <div class="stat-label">嘗試次數</div>
+          <div class="stat-value" id="attempts">0</div>
+        </section>
+        <section class="stat">
+          <div class="stat-label">已完成</div>
+          <div class="stat-value"><span id="matched">0</span>/<span id="total">0</span></div>
+        </section>
+      </div>
+    </header>
+
+    <section class="game" aria-label="朝代配對遊戲">
+      <section class="dynasty-board">
+        <div class="section-title">
+          <span>左欄：朝代卡格</span>
+          <small>可放多張事件卡</small>
+        </div>
+        <div class="dynasty-grid" id="dynastyGrid"></div>
+      </section>
+
+      <aside class="event-bank">
+        <div class="section-title">
+          <span>右欄：事件卡</span>
+          <small>拖曳到正確朝代</small>
+        </div>
+        <div class="event-list" id="eventList"></div>
+      </aside>
+    </section>
+  </main>
+
+  <section class="pass-backdrop" id="passBackdrop" role="dialog" aria-modal="true" aria-labelledby="passTitle">
+    <div class="pass-card">
+      <h2 id="passTitle">過關！</h2>
+      <p>所有事件都配對完成。</p>
+      <p>總嘗試次數：<strong id="finalAttempts">0</strong></p>
+      <button id="playAgain" type="button">再玩一次</button>
+    </div>
+  </section>
+
+  <script>
+    const dynasties = [
+      { id: 1, name: "秦朝" },
+      { id: 2, name: "漢朝" },
+      { id: 3, name: "唐朝" },
+      { id: 4, name: "宋朝" },
+      { id: 5, name: "明朝" },
+      { id: 6, name: "清朝" }
+    ];
+
+    const events = [
+      { id: "e1", dynasty_id: 1, text: "統一六國", icon: "⚔️" },
+      { id: "e2", dynasty_id: 1, text: "修築萬里長城", icon: "🧱" },
+      { id: "e3", dynasty_id: 1, text: "焚書坑儒", icon: "🔥" },
+      { id: "e4", dynasty_id: 2, text: "張騫通西域", icon: "🐪" },
+      { id: "e5", dynasty_id: 2, text: "文景之治", icon: "📜" },
+      { id: "e6", dynasty_id: 2, text: "罷黜百家獨尊儒術", icon: "📖" },
+      { id: "e7", dynasty_id: 3, text: "貞觀之治", icon: "👑" },
+      { id: "e8", dynasty_id: 3, text: "安史之亂", icon: "💥" },
+      { id: "e9", dynasty_id: 3, text: "玄奘西行取經", icon: "🧘" },
+      { id: "e10", dynasty_id: 4, text: "王安石變法", icon: "📜" },
+      { id: "e11", dynasty_id: 4, text: "岳飛抗金", icon: "🗡️" },
+      { id: "e12", dynasty_id: 5, text: "鄭和下西洋", icon: "⛵" },
+      { id: "e13", dynasty_id: 5, text: "永樂大典編成", icon: "📚" },
+      { id: "e14", dynasty_id: 6, text: "鴉片戰爭", icon: "💣" },
+      { id: "e15", dynasty_id: 6, text: "康熙盛世", icon: "🌅" },
+      { id: "e16", dynasty_id: 6, text: "辛亥革命終結", icon: "🏛️" }
+    ];
+
+    const dynastyGrid = document.getElementById("dynastyGrid");
+    const eventList = document.getElementById("eventList");
+    const attemptsEl = document.getElementById("attempts");
+    const matchedEl = document.getElementById("matched");
+    const totalEl = document.getElementById("total");
+    const passBackdrop = document.getElementById("passBackdrop");
+    const finalAttemptsEl = document.getElementById("finalAttempts");
+    const playAgainButton = document.getElementById("playAgain");
+
+    let attempts = 0;
+    let matched = 0;
+    let draggedCard = null;
+
+    function shuffle(list) {
+      return [...list].sort(() => Math.random() - 0.5);
+    }
+
+    function renderGame() {
+      attempts = 0;
+      matched = 0;
+      draggedCard = null;
+      attemptsEl.textContent = attempts;
+      matchedEl.textContent = matched;
+      totalEl.textContent = events.length;
+      passBackdrop.classList.remove("show");
+      dynastyGrid.innerHTML = "";
+      eventList.innerHTML = "";
+
+      dynasties.forEach(dynasty => {
+        const card = document.createElement("article");
+        card.className = "dynasty-card";
+        card.innerHTML = `
+          <div class="dynasty-name">${dynasty.name}</div>
+          <div class="drop-zone" data-dynasty-id="${dynasty.id}" data-placeholder="將相關事件拖曳到這裡"></div>
+        `;
+        dynastyGrid.appendChild(card);
+      });
+
+      shuffle(events).forEach(eventItem => {
+        eventList.appendChild(createEventCard(eventItem));
+      });
+
+      bindDropZones();
+    }
+
+    function createEventCard(eventItem) {
+      const card = document.createElement("article");
+      card.className = "event-card";
+      card.draggable = true;
+      card.id = eventItem.id;
+      card.dataset.eventId = eventItem.id;
+      card.dataset.dynastyId = String(eventItem.dynasty_id);
+      card.innerHTML = `
+        <span class="event-icon" aria-hidden="true">${eventItem.icon}</span>
+        <span class="event-text">${eventItem.text}</span>
+      `;
+
+      card.addEventListener("dragstart", event => {
+        if (card.classList.contains("correct")) {
+          event.preventDefault();
+          return;
+        }
+
+        draggedCard = card;
+        card.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", card.dataset.eventId);
+      });
+
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+        draggedCard = null;
+      });
+
+      return card;
+    }
+
+    function bindDropZones() {
+      document.querySelectorAll(".drop-zone").forEach(zone => {
+        zone.addEventListener("dragover", event => {
+          event.preventDefault();
+          zone.classList.add("drag-over");
+          event.dataTransfer.dropEffect = "move";
+        });
+
+        zone.addEventListener("dragleave", () => {
+          zone.classList.remove("drag-over");
+        });
+
+        zone.addEventListener("drop", event => {
+          event.preventDefault();
+          zone.classList.remove("drag-over");
+          const eventId = event.dataTransfer.getData("text/plain");
+          const card = draggedCard || document.querySelector(`[data-event-id="${eventId}"]`);
+
+          if (!card || card.classList.contains("correct")) {
+            return;
+          }
+
+          attempts += 1;
+          attemptsEl.textContent = attempts;
+
+          if (card.dataset.dynastyId === zone.dataset.dynastyId) {
+            lockCorrectCard(card, zone);
+          } else {
+            showWrong(card);
+          }
+        });
+      });
+    }
+
+    function lockCorrectCard(card, zone) {
+      card.classList.remove("wrong", "dragging");
+      card.classList.add("correct");
+      card.draggable = false;
+      zone.appendChild(card);
+      zone.classList.add("has-card");
+      matched += 1;
+      matchedEl.textContent = matched;
+
+      if (matched === events.length) {
+        setTimeout(showPassScreen, 320);
+      }
+    }
+
+    function showWrong(card) {
+      card.classList.remove("wrong");
+      void card.offsetWidth;
+      card.classList.add("wrong");
+      eventList.appendChild(card);
+      setTimeout(() => card.classList.remove("wrong"), 300);
+    }
+
+    function showPassScreen() {
+      localStorage.setItem("cert_dynasty", "1");
+      finalAttemptsEl.textContent = attempts;
+      passBackdrop.classList.add("show");
+    }
+
+    playAgainButton.addEventListener("click", renderGame);
+
+    renderGame();
+  </script>
+</body>
+</html>
