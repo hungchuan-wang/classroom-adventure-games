@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
@@ -815,27 +815,39 @@
         badge.parentNode.insertBefore(placeholder, badge);
 
         dragState = { badge, placeholder };
-        badge.setPointerCapture(event.pointerId);
         badge.style.setProperty("--drag-width", `${rect.width}px`);
         badge.classList.add("dragging");
         document.body.appendChild(badge);
         moveBadge(event.clientX, event.clientY);
+        window.addEventListener("pointermove", handleBadgePointerMove);
+        window.addEventListener("pointerup", handleBadgePointerUp);
+        window.addEventListener("pointercancel", handleBadgePointerCancel);
       });
+    }
 
-      badge.addEventListener("pointermove", event => {
-        if (!dragState || dragState.badge !== badge) return;
-        moveBadge(event.clientX, event.clientY);
-        highlightSlot(event.clientX, event.clientY);
-      });
+    function handleBadgePointerMove(event) {
+      if (!dragState) return;
+      event.preventDefault();
+      moveBadge(event.clientX, event.clientY);
+      highlightSlot(event.clientX, event.clientY);
+    }
 
-      badge.addEventListener("pointerup", event => {
-        if (!dragState || dragState.badge !== badge) return;
-        finishBadgeDrag(event.clientX, event.clientY);
-      });
+    function handleBadgePointerUp(event) {
+      if (!dragState) return;
+      event.preventDefault();
+      finishBadgeDrag(event.clientX, event.clientY);
+      removeBadgeDragListeners();
+    }
 
-      badge.addEventListener("pointercancel", () => {
-        if (dragState && dragState.badge === badge) returnBadge();
-      });
+    function handleBadgePointerCancel() {
+      if (dragState) returnBadge();
+      removeBadgeDragListeners();
+    }
+
+    function removeBadgeDragListeners() {
+      window.removeEventListener("pointermove", handleBadgePointerMove);
+      window.removeEventListener("pointerup", handleBadgePointerUp);
+      window.removeEventListener("pointercancel", handleBadgePointerCancel);
     }
 
     function moveBadge(x, y) {
@@ -989,3 +1001,4 @@
   </script>
 </body>
 </html>
+
