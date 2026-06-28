@@ -6,9 +6,9 @@
   <title>示範3_打怪RPG</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #151c35;
-      --panel-2: #202a4d;
+      --bg: #0a1020;
+      --panel: #141d35;
+      --panel2: #202b4d;
       --text: #f7fbff;
       --muted: #9fb1d9;
       --gold: #ffd15c;
@@ -16,21 +16,14 @@
       --yellow: #ffd65c;
       --red: #ff4b5f;
       --blue: #62c7ff;
-      --purple: #a579ff;
       --wood: #8b5a2b;
-      --wood-light: #c88a45;
       --line: rgba(255, 255, 255, 0.14);
       --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html,
-    body {
-      min-height: 100%;
-    }
+    html, body { min-height: 100%; }
 
     body {
       margin: 0;
@@ -40,36 +33,41 @@
         radial-gradient(circle at 86% 18%, rgba(255, 75, 95, 0.16), transparent 25rem),
         radial-gradient(circle at 50% 95%, rgba(255, 209, 92, 0.14), transparent 26rem),
         linear-gradient(135deg, #060915 0%, var(--bg) 56%, #14172a 100%);
-      font-family: "Microsoft JhengHei", "PingFang TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
       overflow-x: hidden;
     }
 
-    body.flash-correct {
-      animation: flashCorrect 0.2s ease;
-    }
+    body.flash-correct { animation: flashCorrect 0.2s ease; }
+    body.flash-critical { animation: flashCritical 0.28s ease; }
+    body.shake { animation: shake 0.3s linear; }
 
-    body.flash-critical {
-      animation: flashCritical 0.28s ease;
-    }
-
-    body.shake {
-      animation: shake 0.3s linear;
-    }
-
-    @keyframes flashCorrect {
-      50% { background-color: rgba(83, 224, 131, 0.35); }
-    }
-
-    @keyframes flashCritical {
-      50% { background-color: rgba(255, 75, 95, 0.42); }
-    }
-
+    @keyframes flashCorrect { 50% { background-color: rgba(83, 224, 131, 0.35); } }
+    @keyframes flashCritical { 50% { background-color: rgba(255, 75, 95, 0.42); } }
     @keyframes shake {
       0%, 100% { transform: translate(0, 0); }
       18% { transform: translate(-8px, 4px); }
       36% { transform: translate(7px, -5px); }
       54% { transform: translate(-6px, -3px); }
       72% { transform: translate(5px, 4px); }
+    }
+
+    .map-link {
+      position: fixed;
+      left: 16px;
+      top: 16px;
+      z-index: 40;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 13px;
+      border: 1px solid rgba(255, 209, 92, 0.45);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(11, 16, 32, 0.86);
+      text-decoration: none;
+      font-weight: 900;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(10px);
     }
 
     .app {
@@ -119,13 +117,8 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .coin-box.pop {
-      animation: pop 0.22s ease;
-    }
-
-    @keyframes pop {
-      50% { transform: scale(1.18); }
-    }
+    .coin-box.pop { animation: pop 0.22s ease; }
+    @keyframes pop { 50% { transform: scale(1.18); } }
 
     .screen {
       display: none;
@@ -136,9 +129,7 @@
       overflow: hidden;
     }
 
-    .screen.active {
-      display: block;
-    }
+    .screen.active { display: block; }
 
     .loading {
       min-height: 420px;
@@ -158,13 +149,9 @@
       animation: spin 0.9s linear infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .battle {
-      padding: 18px;
-    }
+    .battle { padding: 18px; }
 
     .stage-label {
       display: flex;
@@ -188,24 +175,11 @@
       border-radius: 18px;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
       min-height: 178px;
-      position: relative;
       overflow: hidden;
     }
 
-    .fighter.hero {
-      border-color: rgba(98, 199, 255, 0.28);
-    }
-
-    .fighter.monster {
-      border-color: rgba(255, 75, 95, 0.28);
-    }
-
-    .sprite {
-      font-size: clamp(4.6rem, 10vw, 6.8rem);
-      text-align: center;
-      line-height: 1;
-      filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.32));
-    }
+    .fighter.hero { border-color: rgba(98, 199, 255, 0.28); }
+    .fighter.monster { border-color: rgba(255, 75, 95, 0.28); }
 
     .fighter-name {
       margin: 0 0 10px;
@@ -214,6 +188,13 @@
       gap: 10px;
       font-weight: 900;
       font-size: 1.05rem;
+    }
+
+    .sprite {
+      font-size: clamp(4.6rem, 10vw, 6.8rem);
+      text-align: center;
+      line-height: 1;
+      filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.32));
     }
 
     .hpbar {
@@ -231,18 +212,13 @@
       transition: width 0.3s ease, background 0.2s ease;
     }
 
-    .hpfill.yellow {
-      background: linear-gradient(90deg, #d79c27, var(--yellow));
-    }
-
+    .hpfill.yellow { background: linear-gradient(90deg, #d79c27, var(--yellow)); }
     .hpfill.red {
       background: linear-gradient(90deg, #b92838, var(--red));
       animation: danger 0.65s ease-in-out infinite;
     }
 
-    @keyframes danger {
-      50% { opacity: 0.58; }
-    }
+    @keyframes danger { 50% { opacity: 0.58; } }
 
     .question-card {
       padding: 18px;
@@ -278,7 +254,7 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       color: var(--text);
-      background: var(--panel-2);
+      background: var(--panel2);
       font: inherit;
       font-weight: 900;
       cursor: pointer;
@@ -289,25 +265,6 @@
       transform: translateY(-2px);
       border-color: rgba(255, 209, 92, 0.5);
       box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
-    }
-
-    .map-link {
-      position: fixed;
-      left: 16px;
-      top: 16px;
-      z-index: 40;
-      min-height: 40px;
-      display: inline-flex;
-      align-items: center;
-      padding: 8px 13px;
-      border: 1px solid rgba(255, 209, 92, 0.45);
-      border-radius: 999px;
-      color: var(--gold);
-      background: rgba(11, 16, 32, 0.86);
-      text-decoration: none;
-      font-weight: 900;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-      backdrop-filter: blur(10px);
     }
 
     button:disabled {
@@ -387,17 +344,13 @@
         linear-gradient(135deg, var(--wood), #5d3519);
     }
 
-    .shop h2,
-    .result h2,
-    .gameover h2 {
+    .shop h2, .result h2, .gameover h2 {
       margin: 0 0 8px;
       font-size: clamp(1.8rem, 5vw, 3rem);
       letter-spacing: 0;
     }
 
-    .shop p,
-    .result p,
-    .gameover p {
+    .shop p, .result p, .gameover p {
       margin: 0 0 18px;
       color: #ffe5b7;
       font-weight: 800;
@@ -414,43 +367,17 @@
       padding: 16px;
       border: 2px solid rgba(255, 224, 161, 0.42);
       border-radius: 18px;
-      background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 45%),
-        rgba(50, 28, 12, 0.48);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 45%), rgba(50, 28, 12, 0.48);
       box-shadow: inset 0 0 22px rgba(255, 224, 161, 0.08);
     }
 
-    .item-icon {
-      font-size: 2.4rem;
-      line-height: 1;
-    }
+    .item-icon { font-size: 2.4rem; line-height: 1; }
+    .item-card h3 { margin: 8px 0 6px; font-size: 1.15rem; }
+    .item-card p { min-height: 48px; font-size: 0.95rem; font-weight: 600; }
+    .buy { width: 100%; color: #2b1808; background: linear-gradient(135deg, #ffe08d, var(--gold)); }
+    .continue { color: #0b1020; background: linear-gradient(135deg, var(--green), var(--blue)); }
 
-    .item-card h3 {
-      margin: 8px 0 6px;
-      font-size: 1.15rem;
-    }
-
-    .item-card p {
-      min-height: 48px;
-      margin: 0 0 12px;
-      color: #ffe5b7;
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .buy {
-      width: 100%;
-      color: #2b1808;
-      background: linear-gradient(135deg, #ffe08d, var(--gold));
-    }
-
-    .continue {
-      color: #0b1020;
-      background: linear-gradient(135deg, var(--green), var(--blue));
-    }
-
-    .result,
-    .gameover {
+    .result, .gameover {
       min-height: 480px;
       display: grid;
       place-items: center;
@@ -497,22 +424,9 @@
     }
 
     @media (max-width: 760px) {
-      .topbar {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .coin-box {
-        width: 100%;
-      }
-
-      .fighters,
-      .answers,
-      .shop-items,
-      .bag-panel.show,
-      .pill-row {
-        grid-template-columns: 1fr;
-      }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .coin-box { width: 100%; }
+      .fighters, .answers, .shop-items, .bag-panel.show, .pill-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -545,19 +459,13 @@
 
         <div class="fighters">
           <article class="fighter hero">
-            <div class="fighter-name">
-              <span>🧙 巫師</span>
-              <span><span id="heroHpText">100</span>/100 HP</span>
-            </div>
+            <div class="fighter-name"><span>🧙 巫師</span><span><span id="heroHpText">100</span>/100 HP</span></div>
             <div class="hpbar"><div class="hpfill" id="heroHpFill"></div></div>
             <div class="sprite">🧙</div>
           </article>
 
           <article class="fighter monster">
-            <div class="fighter-name">
-              <span id="monsterName">🐺 野狼</span>
-              <span><span id="monsterHpText">100</span>/100 HP</span>
-            </div>
+            <div class="fighter-name"><span id="monsterName">🐺 野狼</span><span><span id="monsterHpText">100</span>/100 HP</span></div>
             <div class="hpbar"><div class="hpfill" id="monsterHpFill"></div></div>
             <div class="sprite" id="monsterSprite">🐺</div>
           </article>
@@ -637,15 +545,14 @@
   </main>
 
   <script>
-    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTm2B7PnTQ1lI_ihKPBKguFrUY-VFTcEw0VGIgI4d9tNmpo46OvDZJk8ZB8ctIq5KpbT8B1AVcf7FBZ/pub?gid=876534449&single=true&output=csv";
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTi_x00EJvW4kwa-MnS-vfLl-WvwOPOGtcYVcW3eHkAco2kFKUQzFyYyUO_ZjBGkJQyxtLVzh5jUTho/pub?output=csv";
 
     const FALLBACK_QUESTIONS = [
       { question: "由「更有一株半株的丹楓夾在裡面」一句，可看出老殘是在哪一個季節遊大明湖？", correct: "秋季", wrong: ["春季", "夏季", "冬季"] },
       { question: "「歷下此亭古，濟南名士多」這副對聯說明濟南城的特色為何？", correct: "歷史悠久，地靈人傑", wrong: ["風景名勝，名聞遐邇", "文化深厚，人口眾多", "龍蟠虎踞，遊人如織"] },
       { question: "「一盞寒泉薦秋菊」中的「薦」字，其意為下列何者？", correct: "進獻", wrong: ["推舉", "陪伴", "介紹"] },
-      { question: "「虛應故事」之於「敷衍搪塞」的關係，猶如下列何組詞語？", correct: "鶴立雞群／出類拔萃", wrong: ["五花八門／千篇一律", "門可羅雀／戶限為穿", "井底之蛙／脫穎而出"] },
-      { question: "「兩邊荷葉荷花將船夾住。那荷葉初枯，擦得船嗤嗤價響。」最符合何種情景？", correct: "初秋的乾枯荷葉，摩擦船身發出聲響", wrong: ["荷葉鮮綠，蓮蓬飽滿", "水面漂浮著零星花瓣", "葉子出水很高且荷花繁盛"] },
-      { question: "下列「　」中的詞語，何者不是狀聲詞？", correct: "「躍躍」欲試", wrong: ["「嗤嗤」價響", "「格格」價飛", "「呱呱」噪啼"] }
+      { question: "下列「　」中的詞語，何者不是狀聲詞？", correct: "「躍躍」欲試", wrong: ["「嗤嗤」價響", "「格格」價飛", "「呱呱」噪啼"] },
+      { question: "下列做事的態度，何者與其他三者不同？", correct: "不拘小節", wrong: ["虛應故事", "馬馬虎虎", "敷衍塞責"] }
     ];
 
     const MONSTERS = [
@@ -737,8 +644,7 @@
 
     function parseCsvQuestions(csv) {
       const rows = parseCsv(csv).filter(row => row.some(cell => cell.trim() !== ""));
-      const dataRows = rows.slice(1);
-      return dataRows.map(row => {
+      return rows.slice(1).map(row => {
         const [question, a, b, c, d] = row.map(cell => cell.trim());
         const wrong = [b, c, d].filter(option => option && option !== "空");
         if (!question || !a || wrong.length === 0) return null;
@@ -804,7 +710,7 @@
     function nextQuestion() {
       locked = false;
       currentQuestion = getRandomQuestion();
-      const choices = shuffle([currentQuestion.correct, ...currentQuestion.wrong.filter(Boolean)]).slice(0, 4);
+      const choices = shuffle([currentQuestion.correct, ...currentQuestion.wrong]).slice(0, 4);
       questionText.textContent = currentQuestion.question;
       answersEl.innerHTML = "";
       feedbackLine.textContent = "";
@@ -819,9 +725,7 @@
     }
 
     function getRandomQuestion() {
-      if (usedQuestionIndexes.length >= questions.length) {
-        usedQuestionIndexes = [];
-      }
+      if (usedQuestionIndexes.length >= questions.length) usedQuestionIndexes = [];
       let index;
       do {
         index = Math.floor(Math.random() * questions.length);
@@ -850,7 +754,6 @@
         feedbackLine.textContent = critical ? "暴擊成功！怪物受到 50 傷害！" : "答對！怪物受到 25 傷害，獲得 5 金幣！";
         pulseBody(critical ? "flash-critical" : "flash-correct");
         updateAll();
-
         if (monsterHp <= 0) {
           setTimeout(defeatMonster, 900);
         } else {
@@ -862,7 +765,7 @@
         feedbackLine.textContent = `答錯！正確答案是「${currentQuestion.correct}」。`;
         pulseBody("shake");
         updateAll();
-        setTimeout(() => handleDeathOrContinue(), 2000);
+        setTimeout(handleDeathOrContinue, 2000);
       }
     }
 
@@ -871,7 +774,6 @@
         nextQuestion();
         return;
       }
-
       if (inventory.charm > 0) {
         inventory.charm -= 1;
         heroHp = 1;
@@ -881,7 +783,6 @@
         setTimeout(nextQuestion, 1000);
         return;
       }
-
       if (!diedAtOneHp) {
         heroHp = 1;
         diedAtOneHp = true;
@@ -891,7 +792,6 @@
         setTimeout(nextQuestion, 1300);
         return;
       }
-
       showScreen("gameover");
     }
 
@@ -1001,10 +901,7 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    bagButton.addEventListener("click", () => {
-      bagPanel.classList.toggle("show");
-    });
-
+    bagButton.addEventListener("click", () => bagPanel.classList.toggle("show"));
     potionQuickButton.addEventListener("click", usePotion);
     usePotionButton.addEventListener("click", usePotion);
     continueButton.addEventListener("click", continueToNextStage);
