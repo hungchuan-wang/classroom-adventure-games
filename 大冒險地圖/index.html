@@ -12,7 +12,7 @@
       --gold: #ffd36a;
       --green: #53d77a;
       --red: #ef4f56;
-      --panel: rgba(25, 15, 9, 0.82);
+      --panel: rgba(25, 15, 9, 0.84);
       --line: rgba(255, 213, 122, 0.32);
       --shadow: 0 24px 80px rgba(0, 0, 0, 0.46);
     }
@@ -387,26 +387,163 @@
       padding: 12px 0;
     }
 
+    .gate-game.hidden,
+    .cutscene-panel,
     .win-panel {
       display: none;
-      text-align: center;
-      padding: 28px;
     }
 
+    .cutscene-panel.show,
     .win-panel.show {
       display: block;
     }
 
-    .gate-game.hidden {
-      display: none;
+    .cutscene-panel.fade-out {
+      animation: fadeAway 0.55s ease forwards;
+    }
+
+    @keyframes fadeAway {
+      to {
+        opacity: 0;
+        transform: scale(0.985);
+      }
+    }
+
+    .cutscene-card {
+      min-height: min(68vh, 620px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .cutscene-title {
+      margin: 0;
+      color: var(--gold);
+      text-align: center;
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 22px rgba(255, 213, 106, 0.38);
+    }
+
+    .scene-visual {
+      position: relative;
+      min-height: 320px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 213, 106, 0.32);
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 52%, rgba(255, 213, 106, 0.2), transparent 13rem),
+        linear-gradient(45deg, rgba(79, 46, 16, 0.12) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(79, 46, 16, 0.1) 25%, transparent 25%),
+        linear-gradient(180deg, #b98a49, #6b441e);
+      box-shadow: inset 0 0 42px rgba(45, 23, 8, 0.58);
+    }
+
+    .scene-visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.13), transparent 7rem),
+        repeating-linear-gradient(0deg, rgba(45, 24, 10, 0.14) 0 1px, transparent 1px 8px);
+      mix-blend-mode: multiply;
+      opacity: 0.7;
+    }
+
+    .scene-art {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #2b1709;
+      font-size: clamp(4rem, 14vw, 8rem);
+      filter: drop-shadow(0 18px 18px rgba(39, 18, 6, 0.4));
+    }
+
+    .scene-art::after {
+      content: "";
+      position: absolute;
+      width: min(42vw, 360px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 223, 125, 0.34), transparent 62%);
+      z-index: -1;
+    }
+
+    .scene-1 .scene-art::before {
+      content: "🎴 📝 ⚔️";
+    }
+
+    .scene-2 .scene-art::before {
+      content: "🚪";
+    }
+
+    .scene-3 .scene-art::before {
+      content: "🗺️";
+    }
+
+    .scene-4 .scene-art::before {
+      content: "🧭";
+    }
+
+    .ink-lines {
+      position: absolute;
+      inset: 16%;
+      border: 2px dashed rgba(51, 28, 11, 0.34);
+      border-radius: 50%;
+      transform: rotate(-8deg);
+    }
+
+    .ink-lines::before,
+    .ink-lines::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 130%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 225, 130, 0.72), transparent);
+      transform: translate(-50%, -50%) rotate(32deg);
+    }
+
+    .ink-lines::after {
+      transform: translate(-50%, -50%) rotate(-28deg);
+    }
+
+    .narration {
+      margin: 0 auto;
+      max-width: 780px;
+      color: #fff0c4;
+      text-align: center;
+      font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+      line-height: 1.8;
+    }
+
+    .tap-hint {
+      margin-top: 8px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 900;
+    }
+
+    .win-panel {
+      text-align: center;
+      padding: 28px;
     }
 
     .win-panel h2 {
-      font-size: clamp(2rem, 7vw, 4rem);
+      margin: 0;
+      color: var(--gold);
+      font-size: clamp(2.6rem, 9vw, 5rem);
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 22px rgba(255, 213, 106, 0.42);
     }
 
     .duration {
-      margin: 10px 0 22px;
+      margin: 14px 0 22px;
       color: var(--muted);
       font-size: 1.2rem;
       font-weight: 900;
@@ -439,6 +576,10 @@
         height: 42px;
         font-size: 1.45rem;
         border-width: 3px;
+      }
+
+      .scene-visual {
+        min-height: 260px;
       }
     }
   </style>
@@ -483,8 +624,22 @@
         </section>
       </section>
 
+      <section class="cutscene-panel" id="cutscenePanel">
+        <article class="cutscene-card" id="cutsceneCard" role="button" tabindex="0" aria-label="結局過場，點擊前進">
+          <h2 class="cutscene-title" id="cutsceneTitle">三印開門</h2>
+          <div class="scene-visual scene-1" id="sceneVisual">
+            <div class="ink-lines"></div>
+            <div class="scene-art"></div>
+          </div>
+          <div>
+            <p class="narration" id="narration"></p>
+            <div class="tap-hint" id="tapHint">點擊畫面繼續</div>
+          </div>
+        </article>
+      </section>
+
       <section class="win-panel" id="winPanel">
-        <h2>🏆 冒險完成！</h2>
+        <h2>冒險完成</h2>
         <div class="duration">總冒險時長：<span id="durationText">00 分 00 秒</span></div>
         <button id="restartButton" type="button">再次冒險</button>
       </section>
@@ -522,6 +677,29 @@
       }
     ];
 
+    const ENDING_SCENES = [
+      {
+        visualClass: "scene-1",
+        title: "三枚印記歸位",
+        text: "三枚印記，並非鑰匙；它們只是證明，旅人曾認真走過。"
+      },
+      {
+        visualClass: "scene-2",
+        title: "封印之門開啟",
+        text: "門後沒有終點，只有更遼闊的問題，靜靜等人靠近。"
+      },
+      {
+        visualClass: "scene-3",
+        title: "地圖重新生長",
+        text: "被理解的知識，會在心中長成道路；被挑戰的困難，會在身後變成風景。"
+      },
+      {
+        visualClass: "scene-4",
+        title: "旅人回望",
+        text: "原來冒險不是離開課本，而是把課本打開成一個世界。"
+      }
+    ];
+
     const coverScreen = document.getElementById("coverScreen");
     const heldCount = document.getElementById("heldCount");
     const clearButton = document.getElementById("clearButton");
@@ -531,12 +709,19 @@
     const slotsEl = document.getElementById("slots");
     const badgeRow = document.getElementById("badgeRow");
     const gateGame = document.getElementById("gateGame");
+    const cutscenePanel = document.getElementById("cutscenePanel");
+    const cutsceneCard = document.getElementById("cutsceneCard");
+    const cutsceneTitle = document.getElementById("cutsceneTitle");
+    const sceneVisual = document.getElementById("sceneVisual");
+    const narration = document.getElementById("narration");
+    const tapHint = document.getElementById("tapHint");
     const winPanel = document.getElementById("winPanel");
     const durationText = document.getElementById("durationText");
     const restartButton = document.getElementById("restartButton");
 
     let dragState = null;
     let placed = {};
+    let endingIndex = 0;
 
     function init() {
       if (!localStorage.getItem("adventure_start")) {
@@ -579,7 +764,9 @@
 
     function openGate() {
       placed = {};
+      endingIndex = 0;
       gateGame.classList.remove("hidden");
+      cutscenePanel.classList.remove("show", "fade-out");
       winPanel.classList.remove("show");
       renderGateGame();
       gateModal.classList.add("show");
@@ -722,11 +909,41 @@
       const unlocked = LEVELS.every(level => placed[level.id]);
       if (!unlocked) return;
 
+      setTimeout(startEnding, 320);
+    }
+
+    function startEnding() {
+      gateGame.classList.add("hidden");
+      endingIndex = 0;
+      renderEndingScene();
+      cutscenePanel.classList.add("show");
+    }
+
+    function renderEndingScene() {
+      const scene = ENDING_SCENES[endingIndex];
+      cutsceneTitle.textContent = endingIndex === 0 ? "三印開門" : scene.title;
+      sceneVisual.className = `scene-visual ${scene.visualClass}`;
+      narration.textContent = scene.text;
+      tapHint.textContent = endingIndex === ENDING_SCENES.length - 1 ? "點擊後顯示冒險完成" : "點擊畫面繼續";
+    }
+
+    function advanceEnding() {
+      if (!cutscenePanel.classList.contains("show")) return;
+
+      if (endingIndex < ENDING_SCENES.length - 1) {
+        endingIndex += 1;
+        renderEndingScene();
+        return;
+      }
+
+      cutscenePanel.classList.add("fade-out");
+      setTimeout(showWin, 560);
+    }
+
+    function showWin() {
+      cutscenePanel.classList.remove("show", "fade-out");
       durationText.textContent = formatDuration(Date.now() - Number(localStorage.getItem("adventure_start") || Date.now()));
-      setTimeout(() => {
-        gateGame.classList.add("hidden");
-        winPanel.classList.add("show");
-      }, 320);
+      winPanel.classList.add("show");
     }
 
     function formatDuration(ms) {
@@ -753,9 +970,16 @@
     }
 
     coverScreen.addEventListener("click", hideCover);
-    clearButton.addEventListener("click", clearProgress);
+    clearButton.addEventListener("click", () => clearProgress(false));
     closeModal.addEventListener("click", () => gateModal.classList.remove("show"));
     restartButton.addEventListener("click", restartAdventure);
+    cutsceneCard.addEventListener("click", advanceEnding);
+    cutsceneCard.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        advanceEnding();
+      }
+    });
 
     gateModal.addEventListener("click", event => {
       if (event.target === gateModal) gateModal.classList.remove("show");
